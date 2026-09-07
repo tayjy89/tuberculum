@@ -1,6 +1,6 @@
 /* Tuberculum curriculum: independently editable teaching and assessment content.
    Clinical-review edition 2.0.0. No learner identifiers or patient records. */
-const courseVersion='2.2.0';
+const courseVersion='2.3.0';
 Object.assign(refs,{igra:'https://www.cdc.gov/tb/hcp/testing-diagnosis/interferon-gamma-release-assay.html',diagnosis:'https://www.cdc.gov/tb/hcp/testing-diagnosis/clinical-and-laboratory-diagnosis.html',notification:'https://www.moh.gov.sg/seeking-healthcare/overview-of-diseases/communicable-diseases/infectious-disease-notification/',sg:'https://annals.edu.sg/singapore-tuberculosis-clinical-management-guidelines-2024/'});
 const lessonData=[
 {id:'biology',phase:'Understand',title:'Infection, disease and infectiousness',time:12,video:3,caseId:'mei',objective:'Explain TB natural history and distinguish infection, disease and infectiousness in a patient conversation.',lead:'Three clinical questions need different kinds of evidence.',sections:[
