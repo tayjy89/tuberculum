@@ -3,11 +3,12 @@
 ## Status
 Separate Supabase project created in Singapore: dulpedkbyrfzlbzveyey.
 The foundation migration has been applied. Ten tables have RLS enabled; anonymous SELECT and authenticated INSERT privileges are absent.
-Vercel project creation is NOT verified: an initial tool success was followed by project/deployment 404 responses; retry returned 403 permission denied for creating a preview deployment.
+Vercel project creation is confirmed by the owner's dashboard screenshot; the owner has connected Git manually. The connected Vercel tool still returns 404, so repository/branch settings have not been independently verified.
 GitHub Pages on main remains the working course. This branch is preparatory and must not be merged into main until migration acceptance checks pass.
 
 ## Confirmed requirements
-- Responsible owner and initial administrator: Dr Tay Jun Yang.
+- Responsible owner: Dr Tay Jun Yang.
+- Designated initial administrator email: tuberculum.course@gmail.com (replaces the previously designated personal email). No administrator Auth account has been provisioned yet.
 - Invitation-only enrolment; email/password and recovery. No mandatory admin MFA.
 - Required learner name, email, organisation, MCR, postgraduate year and specialty.
 - Final pass threshold: unrounded score >= 21 out of 30 (>=70%).
@@ -17,7 +18,7 @@ GitHub Pages on main remains the working course. This branch is preparatory and 
 - Maintain course clinical content, existing introduction video and GP-led or NTBSC-led care options.
 
 ## Implementation plan
-1. Resolve Vercel project creation permission and connect this migration branch to a separate project; do not repoint the current Pages site.
+1. Verify the manually connected Vercel Git integration uses the intended migration branch; do not repoint the current Pages site.
 2. Implement server-verified invitation acceptance, sign-in/recovery and profile onboarding. Disable public signup; no client-controlled administrator role.
 3. Configure production email delivery and authorised callback URLs after the deployment URL is confirmed.
 4. Establish membership-scoped access policies and authenticated server handlers. Current closed tables are intentional, not a working learner API.
