@@ -1,0 +1,10 @@
+import {mkdir,copyFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+await mkdir('public-course/assets',{recursive:true});
+const files=["app.js","assets/tuberculum-logo.svg","course.js","curriculum.js","evaluation.js","index.html","policy.js","style.css","updates.js","video-scripts.js"];
+for(const f of files) await copyFile(f,'public-course/'+f);
+const r=await fetch('https://raw.githubusercontent.com/tayjy89/tuberculum/cbe6a361e74fd6c540e344f2ccbe8d075d27a3b6/assets/cxr-illustrations.png');
+if(!r.ok) throw new Error('CXR asset download failed');
+const b=Buffer.from(await r.arrayBuffer());
+if(createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex')!=='d36498d8d8baa627ab2edaa0072aa997f8779550') throw new Error('CXR asset integrity mismatch');
+await writeFile('public-course/assets/cxr-illustrations.png',b);
