@@ -5,7 +5,9 @@ Responsible owner: Dr Tay Jun Yang. Designated initial administrator: tuberculum
 The Vercel application serves the account shell from accounts/web. Clinical content is returned by the Supabase course-api Edge Function after verified authentication, active membership, a complete learner profile and the mandatory warm-up. Frontend responses do not include the final assessment key. The earlier public course is still in repository history; a future new assessment form should be used if resistance to previously published answers is required.
 
 ## Implemented
-- Individual email/password accounts activated by one-use invitation links.
+- Open email/password self-registration through Supabase Auth, with email confirmation before automatic learner enrolment. Invitations remain optional.
+- Self-registration always assigns the learner role. Existing administrator roles and deactivated accounts are preserved. Profile and warm-up gates are unchanged.
+- Configure a production SMTP provider in Supabase Auth for confirmation emails to external learners, and set the Auth Site URL to https://tuberculum.vercel.app. The signup request also specifies this return URL. Confirmed learners can return to the site and sign in with their password; callback tokens are removed from the address bar.
 - Administrator bulk invitations (up to 100 addresses), CSV email import, invitation revocation, account activation/deactivation, response export and certificate revocation.
 - Invitation and recovery links expire in seven days. They must be shared privately by the administrator; automatic email delivery is not configured.
 - Mandatory learner profile: full name, organisation, MCR number, postgraduate year and specialty.

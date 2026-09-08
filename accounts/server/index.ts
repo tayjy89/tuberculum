@@ -47,8 +47,14 @@ Deno.serve(async(req)=>{
  let claims;try{claims=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));}catch{return out({error:'Invalid session.'},401);}
  const [session]=await sql`select id from auth.sessions where id=${claims.session_id} and user_id=${user.id}`;
  if(!session)return out({error:'Your session has ended. Please sign in again.'},401);
- const [member]=await sql`select * from course_private.memberships where user_id=${user.id} and active=true`;
- if(!member)return out({error:'This course is invitation only. Contact the administrator.'},403);
+ // Only Auth-verified users with a live session can self-enrol. Roles never come from metadata.
+ const member=await sql.begin(async tx=>{
+  const inserted=await tx`insert into course_private.memberships(user_id,role) values(${user.id},'learner') on conflict(user_id) do nothing returning user_id`;
+  if(inserted.length)await tx`insert into course_private.audit_events(actor_id,action,subject_id) values(${user.id},'self_registration',${user.id})`;
+  const [existing]=await tx`select * from course_private.memberships where user_id=${user.id}`;
+  return existing;
+ });
+ if(!member?.active)return out({error:'Your course access is inactive. Contact the administrator.'},403);
  const admin=member.role==='admin';
  if(action==='admin.list'){
   if(!admin)return out({error:'Administrator access required.'},403);
