@@ -56,9 +56,33 @@ Deno.serve(async(req)=>{
  });
  if(!member?.active)return out({error:'Your course access is inactive. Contact the administrator.'},403);
  const admin=member.role==='admin';
+
+ if(action==='admin.deleteAccount'){
+  if(!admin)return out({error:'Administrator access required.'},403);
+  if(!/^[0-9a-f-]{36}$/i.test(b.id||''))throw Error('Invalid account.');
+  if(b.id===user.id)throw Error('You cannot delete your own account.');
+  await sql.begin(async tx=>{
+   const [target]=await tx`select u.id,u.email,m.role from auth.users u left join course_private.memberships m on m.user_id=u.id where u.id=${b.id} for update of u`;
+   if(!target)throw Error('Account not found.');
+   if(target.role==='admin')throw Error('Administrator accounts cannot be deleted here.');
+   if(typeof b.confirmEmail!=='string'||b.confirmEmail.trim().toLowerCase()!==target.email.toLowerCase())throw Error('Type the learner’s email address to confirm deletion.');
+   await tx`delete from auth.sessions where user_id=${b.id}`;
+   await tx`delete from course_private.invitations where accepted_by=${b.id} or invited_by=${b.id} or lower(email)=lower(${target.email})`;
+   await tx`delete from course_private.issued_certificates where user_id=${b.id}`;
+   await tx`delete from course_private.audit_events where actor_id=${b.id} or subject_id=${b.id}`;
+   await tx`delete from public.activity_progress where enrolment_id in(select id from public.enrolments where user_id=${b.id})`;
+   await tx`delete from public.assessment_attempts where enrolment_id in(select id from public.enrolments where user_id=${b.id})`;
+   await tx`delete from public.certificates where enrolment_id in(select id from public.enrolments where user_id=${b.id})`;
+   await tx`delete from public.enrolments where user_id=${b.id}`;
+   await tx`delete from auth.users where id=${b.id}`;
+   await tx`insert into course_private.audit_events(actor_id,action,subject_id) values(${user.id},'account_deleted',${b.id})`;
+  });
+  return out({ok:true});
+ }
+
  if(action==='admin.list'){
   if(!admin)return out({error:'Administrator access required.'},403);
-  const learners=await sql`select m.user_id,m.role,m.active,u.email,p.full_name,p.mcr_number,p.postgraduate_year,p.specialty,p.organisation,r.record,c.id as certificate_id,c.revoked_at from course_private.memberships m join auth.users u on u.id=m.user_id left join public.learner_profiles p on p.user_id=m.user_id left join course_private.learning_records r on r.user_id=m.user_id left join course_private.issued_certificates c on c.user_id=m.user_id and c.course_version='3.0' order by m.created_at desc`;
+  const learners=await sql`select u.id as user_id,coalesce(m.role,'learner') as role,m.active,u.email,p.full_name,p.mcr_number,p.postgraduate_year,p.specialty,p.organisation,r.record,c.id as certificate_id,c.revoked_at from auth.users u left join course_private.memberships m on m.user_id=u.id left join public.learner_profiles p on p.user_id=u.id left join course_private.learning_records r on r.user_id=u.id left join course_private.issued_certificates c on c.user_id=u.id and c.course_version='3.0' order by m.created_at desc`;
   const invitations=await sql`select id,email,role,status,purpose,expires_at from course_private.invitations order by created_at desc limit 500`;
   return out({learners,invitations});
  }
