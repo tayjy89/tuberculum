@@ -130,7 +130,7 @@ Deno.serve(async(req)=>{
   if(action==='content')return {lessons:content.lessonData.map(l=>({...l,checkpoint:sanitise(l.checkpoint)})),cases:Object.fromEntries(Object.entries(content.cases).map(([id,c]:any)=>[id,{...c,steps:c.steps.map(sanitise)}])),caseOrder:content.caseOrder,videos:content.videos,refs:content.refs};
   if(action==='lesson'){
    const l=content.lessonData.find(l=>l.id===b.id);if(!l||!Number.isInteger(b.choice)||b.choice<0||b.choice>=l.checkpoint.options.length)throw Error('Choose a valid answer.');
-   const correct=b.choice===l.checkpoint.answer;if(correct){s.lessons[l.id]=new Date().toISOString();if(s.revision.includes(l.id)&&!s.revisionDone.includes(l.id))s.revisionDone.push(l.id);}b.result={correct,why:l.checkpoint.why};
+   const correct=b.choice===l.checkpoint.answer;if(correct){s.lessons[l.id]=new Date().toISOString();if(s.revision.includes(l.id)&&!s.revisionDone.includes(l.id))s.revisionDone.push(l.id);}b.result={correct,why:l.checkpoint.why,answer:l.checkpoint.answer};
   }
   if(action==='case'){
    const c=content.cases[b.id];if(!c)throw Error('Patient journey not found.');const responses=s.cases[b.id]||[];
